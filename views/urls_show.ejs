@@ -1,17 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <title>URL Shortened</title>
 </head>
 <body>
-<header><% include ../views/partials/_header %></header>
-
-<h1>Short and long URL</h1>
-
-<ul>
- <% for (key in testing){ %>
-    <li> <p> <%= testing[key]%>  <%= key %></p></li>
-    <%}%>
-</ul>
-    <!-- Add your EJS code here -->
+   <p> <%= shortURL %></p>
 </body>
 </html>
