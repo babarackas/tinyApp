@@ -1,9 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <title>URL Shortened</title>
-</head>
 <body>
-   <p> <%= shortURL %></p>
+<header>
+        <% include ../views/partials/_header %>
+</header>
+
+
+   <ul>
+ <% for (key in urls){ %>
+    <li> <p><%= key %> --> <%= urls[key]%> <button type="button">Delete!</button></p></li>
+    <% }%>
+</ul>
+
+</ul>
 </body>
 </html>
+

@@ -15,14 +15,12 @@ var urlDatabase = {
 };
 //random string generator of 6 numbers and letters
 function generateRandomString() {
-  var text = " ";
+  var text = "";
   var charset = "abcdefghijklmnopqrstuvwxyz0123456789";
     for( var i=0; i < 6; i++ )
       text += charset.charAt(Math.floor(Math.random() * charset.length));
       return text;
     }
-
-var random = generateRandomString();
 
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
@@ -34,31 +32,31 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
-  let templateVars = { shortURL: req.params.id,
-    link: urlDatabase[req.params.id]
-   };
+  let templateVars = { urls: urlDatabase };
+  //console.log(templateVars);
   res.render("urls_show", templateVars);
 });
 
 app.get("/u/:shortURL", (req, res) => {
  let longURL = urlDatabase[req.params.shortURL];
- console.log(longURL);
+ //console.log(urlDatabase);
+ //console.log(longURL);
  res.redirect(longURL);
 });
 
-// //connection to home page
-// app.get("/", (req, res) => {
-//   console.log(urlDatabase);
-//   var test = "HELLO PIP";
-//   res.render("urls_index", {
-//     testing: urlDatabase
-//   });
-// });
-
 app.post("/urls", (req, res) => {
+var random = generateRandomString();
  urlDatabase[random] = req.body.longURL;
  var newURL = "/urls/" + random;
+ console.log(req.body.longURL);
+ console.log(urlDatabase[random]);
  res.redirect(newURL);
+});
+
+app.post("/urls/:id/delete",(req, res) => {
+//console.log(urlDatabase[req.params.id]);
+delete(urlDatabase[req.params.id]);
+res.redirect("/urls");
 });
 
 app.listen(PORT, () => {
