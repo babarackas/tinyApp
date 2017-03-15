@@ -24,6 +24,12 @@ function generateRandomString() {
       return text;
     }
 
+var random = generateRandomString();
+
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
+});
+
 app.get("/urls/:id", (req, res) => {
   let templateVars = { shortURL: req.params.id };
   //let longURL need to use this later
@@ -31,9 +37,6 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
-});
 
 app.post("/urls", (req, res) => {
   console.log(req.body);  // debug statement to see POST parameters
@@ -41,13 +44,13 @@ app.post("/urls", (req, res) => {
 });
 
 
-app.get("/", (req, res) => {
-  console.log(urlDatabase);
-  var test = "HELLO PIP";
-  res.render("urls_index", {
-    testing: urlDatabase
-  });
-});
+// app.get("/", (req, res) => {
+//   console.log(urlDatabase);
+//   var test = "HELLO PIP";
+//   res.render("urls_index", {
+//     testing: urlDatabase
+//   });
+// });
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
