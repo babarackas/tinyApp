@@ -28,6 +28,11 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+app.get("/urls", (req, res) => {
+ let templateVars = { urls: urlDatabase };
+ res.render("urls_index", templateVars);
+});
+
 app.get("/urls/:id", (req, res) => {
   let templateVars = { shortURL: req.params.id,
     link: urlDatabase[req.params.id]
@@ -41,24 +46,19 @@ app.get("/u/:shortURL", (req, res) => {
  res.redirect(longURL);
 });
 
-//connection to home page
-app.get("/", (req, res) => {
-  console.log(urlDatabase);
-  var test = "HELLO PIP";
-  res.render("urls_index", {
-    testing: urlDatabase
-  });
-});
+// //connection to home page
+// app.get("/", (req, res) => {
+//   console.log(urlDatabase);
+//   var test = "HELLO PIP";
+//   res.render("urls_index", {
+//     testing: urlDatabase
+//   });
+// });
 
 app.post("/urls", (req, res) => {
  urlDatabase[random] = req.body.longURL;
  var newURL = "/urls/" + random;
  res.redirect(newURL);
-});
-
-
-app.get("/hello", (req, res) => {
-  res.end("<html><body>Hello <b>World</b></body></html>\n");
 });
 
 app.listen(PORT, () => {
