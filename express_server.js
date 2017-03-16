@@ -25,24 +25,28 @@ function generateRandomString() {
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
-
+//used for making the index page
 app.get("/urls", (req, res) => {
  let templateVars = { urls: urlDatabase };
  res.render("urls_index", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
-  let templateVars = { urls: urlDatabase };
+  //console.log(req.params.id);
+  let templateVars = {
+    urls: urlDatabase,
+    shortURL: req.params.id,
+    longURL: urlDatabase[req.params.id]
+  };
   //console.log(templateVars);
   res.render("urls_show", templateVars);
 });
 
 app.get("/u/:shortURL", (req, res) => {
  let longURL = urlDatabase[req.params.shortURL];
- //console.log(urlDatabase);
- //console.log(longURL);
  res.redirect(longURL);
 });
+
 
 app.post("/urls", (req, res) => {
 var random = generateRandomString();
@@ -53,9 +57,17 @@ var random = generateRandomString();
  res.redirect(newURL);
 });
 
+//to delete an entry
 app.post("/urls/:id/delete",(req, res) => {
-//console.log(urlDatabase[req.params.id]);
+  console.log(urlDatabase[req.params.id]);
 delete(urlDatabase[req.params.id]);
+res.redirect("/urls");
+});
+
+//req.params.id contains shortURL
+app.post("/urls/:id/update",(req, res) => {
+  //console.log(urlDatabase[req.params.id]);
+urlDatabase[req.params.id] = req.body.variable;
 res.redirect("/urls");
 });
 
