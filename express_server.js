@@ -1,5 +1,8 @@
 var express = require("express");
+var cookieParser = require('cookie-parser')
 var app = express();
+app.use(cookieParser())
+
 var PORT = process.env.PORT || 8080;
 
 //allow us to access POST request parameters,
@@ -20,14 +23,26 @@ function generateRandomString() {
     for( var i=0; i < 6; i++ )
       text += charset.charAt(Math.floor(Math.random() * charset.length));
       return text;
-    }
+ }
+//route to homepage
+app.get("/", (req, res) =>{
+let templateVars = {
+urls: urlDatabase,
+name: req.cookies["name"]
+};
+
+  res.render("urls_index", templateVars);
+});
 
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 //used for making the index page
 app.get("/urls", (req, res) => {
- let templateVars = { urls: urlDatabase };
+ let templateVars = {
+  urls: urlDatabase,
+  name: req.cookies["name"]
+};
  res.render("urls_index", templateVars);
 });
 
@@ -52,8 +67,8 @@ app.post("/urls", (req, res) => {
 var random = generateRandomString();
  urlDatabase[random] = req.body.longURL;
  var newURL = "/urls/" + random;
- console.log(req.body.longURL);
- console.log(urlDatabase[random]);
+ //console.log(req.body.longURL);
+ //console.log(urlDatabase[random]);
  res.redirect(newURL);
 });
 
@@ -69,6 +84,14 @@ app.post("/urls/:id/update",(req, res) => {
   //console.log(urlDatabase[req.params.id]);
 urlDatabase[req.params.id] = req.body.variable;
 res.redirect("/urls");
+});
+
+//login endpoint add cookie
+app.post("/login",(req, res) => {
+res.cookie('name', req.body.name);
+console.log(req.body.name);
+
+res.redirect("/");
 });
 
 app.listen(PORT, () => {
