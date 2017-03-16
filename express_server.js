@@ -26,10 +26,17 @@ function generateRandomString() {
  }
 //route to homepage
 app.get("/", (req, res) =>{
-let templateVars = {
-urls: urlDatabase,
-name: req.cookies["name"]
-};
+  let loggedIn = req.cookies["name"] != undefined;
+  let templateVars = {
+    urls: urlDatabase,
+    name: req.cookies["name"],
+    loggedIn: loggedIn
+  };
+  // if (loggedIn){
+  //   console.log("Logged In!:",templateVars.name);
+  // } else {
+  //   console.log("Not Logged In!:",templateVars.name);
+  // }
 
   res.render("urls_index", templateVars);
 });
@@ -90,7 +97,13 @@ res.redirect("/urls");
 app.post("/login",(req, res) => {
 res.cookie('name', req.body.name);
 console.log(req.body.name);
+res.redirect("/");
+});
 
+//logout endpoint delete cookie
+app.post("/logout",(req, res) => {
+res.clearCookie('name', req.body.name);
+//console.log(req.body.name);
 res.redirect("/");
 });
 
