@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+  <head>
+  </head>
+  <body>
+  <header><% include ../views/partials/_header %></header>
+    <h1>Please Log In</h1>
+    <form action="/register" method="POST">
+      <p>
+        <label for="email">Email</label>
+        <input type="email" name="email">
+      </p>
+      <p>
+        <label for="password">Password</label>
+        <input type="password" name="password">
+      </p>
+      <p>
+        <button type='submit'>Log In</button>
+      </p>
+    </form>
+  </body>
+</html>

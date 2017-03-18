@@ -16,6 +16,20 @@ var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+const users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  }
+};
+
 //random string generator of 6 numbers and letters
 function generateRandomString() {
   var text = "";
@@ -24,34 +38,42 @@ function generateRandomString() {
       text += charset.charAt(Math.floor(Math.random() * charset.length));
       return text;
  }
+
+// Function to verify email
+function emailSearch(emailIn) {
+  for (id in users) {
+    if (users[id].email == emailIn){
+      return true
+    }
+  }
+  return false
+}
+
 //route to homepage
 app.get("/", (req, res) =>{
+console.log(req.cookies);
   let loggedIn = req.cookies["name"] != undefined;
   let templateVars = {
     urls: urlDatabase,
-    name: req.cookies["name"],
+    id: req.cookies["name"],
     loggedIn: loggedIn
   };
-  // if (loggedIn){
-  //   console.log("Logged In!:",templateVars.name);
-  // } else {
-  //   console.log("Not Logged In!:",templateVars.name);
-  // }
-
-  res.render("urls_index", templateVars);
+res.render("urls_index", templateVars);
 });
+
 
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
+
 //used for making the index page
-app.get("/urls", (req, res) => {
- let templateVars = {
-  urls: urlDatabase,
-  name: req.cookies["name"]
-};
- res.render("urls_index", templateVars);
-});
+// app.get("/urls", (req, res) => {
+//  let templateVars = {
+//   urls: urlDatabase,
+//   name: req.cookies["name"]
+// };
+//  res.render("urls_index", templateVars);
+// });
 
 app.get("/urls/:id", (req, res) => {
   //console.log(req.params.id);
@@ -69,6 +91,38 @@ app.get("/u/:shortURL", (req, res) => {
  res.redirect(longURL);
 });
 
+//endpoint for registration
+app.get('/register', (req, res) => {
+  res.render('register');
+});
+
+app.post("/register", (req,res) => {
+  let idRandom = generateRandomString()
+  let newUsers = {
+      id: idRandom,
+      email: req.body.email,
+      password: req.body.password
+    }
+  users[idRandom] = newUsers;
+  //error registation handling
+  if (!newUsers.email){
+    res.sendStatus(400);
+  }
+  if (!newUsers.password){
+    res.sendStatus(400);
+  }
+  //responding with a previously used email
+  if (newUsers.email  == emailSearch(req.body.email)){
+    res.sendStatus(400);
+  }
+  else{
+  //console.log('idRandom',idRandom);
+  console.log('email',req.body.email);
+  console.log('users', users);
+  res.cookie('user_id', newUsers.id);
+  res.redirect("/");
+  }
+});
 
 app.post("/urls", (req, res) => {
 var random = generateRandomString();
@@ -79,33 +133,33 @@ var random = generateRandomString();
  res.redirect(newURL);
 });
 
-//to delete an entry
+//to delete a website entry
 app.post("/urls/:id/delete",(req, res) => {
-  console.log(urlDatabase[req.params.id]);
+  //console.log(urlDatabase[req.params.id]);
 delete(urlDatabase[req.params.id]);
-res.redirect("/urls");
+res.redirect("/");
 });
 
 //req.params.id contains shortURL
 app.post("/urls/:id/update",(req, res) => {
   //console.log(urlDatabase[req.params.id]);
 urlDatabase[req.params.id] = req.body.variable;
-res.redirect("/urls");
+res.redirect("/");
 });
 
 //login endpoint add cookie
-app.post("/login",(req, res) => {
-res.cookie('name', req.body.name);
-console.log(req.body.name);
-res.redirect("/");
-});
+// app.post("/login",(req, res) => {
+// res.cookie('name', req.body.name);
+// console.log(req.body.name);
+// res.redirect("/");
+// });
 
 //logout endpoint delete cookie
-app.post("/logout",(req, res) => {
-res.clearCookie('name', req.body.name);
-//console.log(req.body.name);
-res.redirect("/");
-});
+// app.post("/logout",(req, res) => {
+// res.clearCookie('name', req.body.name);
+// //console.log(req.body.name);
+// res.redirect("/");
+// });
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);

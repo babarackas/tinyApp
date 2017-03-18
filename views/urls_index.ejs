@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="stylesheet" type="text/css" href="style.css">
 <title>TinyApp</title>
 </head>
 <body>
@@ -8,20 +9,14 @@
 
 <h2>URL Shortener</h2>
 
-
-   <ul>
+<ul>
  <% for (key in urls){ %>
     <li> <form method="POST" action="/urls/<%=key%>/delete">
-    <p><%= key %> --> <%=urls[key]%>
-    <a href=<%=urls[key]%>> </a>
-    <a href="/urls/<%=key%>">Edit</a>
-
-    <button name = "delete" type="submit">Delete!</button></p></form>
-    <% }%></li>
+    <p><%= key %> --> <a href="<%=urls[key]%>"><%=urls[key]%></a>
+    <a href="/urls/><%=key%>">Edit</a> <button name = "delete" type="submit">Delete!</button></form></p><% }%></li>
 </ul>
 
-
-
+<a href="/urls/new/" > Link to short URL Maker </a>
 
 
 
