@@ -16,7 +16,6 @@ var urlDatabase = {
     "b2xVn2": "http://www.lighthouselabs.ca",
     "9sm5xK": "http://www.google.com"
 };
-
 const users = {
     "userRandomID": {
         id: "userRandomID",
@@ -48,30 +47,49 @@ function emailSearch(emailIn) {
     }
     return false
 }
+// Function to verify password
+function pwSearch(pwIn) {
+    for (id in users) {
+        if (users[id].password == pwIn) {
+            return true
+        }
+    }
+    return false
+}
 
-//route to homepage
+
+//route to homepage if logged in can use object users
+//if not logged in routes to register page
 app.get("/", (req, res) => {
-    console.log(req.cookies);
-    let loggedIn = req.cookies["user_id"] != undefined;
+    debugger;
+    //console.log(req.cookies);
+    let userID = req.cookies.user_id;
+    let user = users[userID];
     // if not logged in go to register
     // if logged go to index page
-    if (loggedIn) {
+    if (user) {
         let templateVars = {
             urls: urlDatabase,
-            id: req.cookies["name"],
-            loggedIn: loggedIn,
-            user: req.body["user_id"]
+            user: user
         };
+        console.log(templateVars);
         res.render("urls_index", templateVars);
     } else {
-        //console.log("did this fucker redirect")
+        //console.log("did this redirect")
         res.redirect("/register");
     }
 });
 
-
 app.get("/urls/new", (req, res) => {
-    res.render("urls_new");
+    let userID = req.cookies.user_id;
+    let user = users[userID];
+        let templateVars = {
+            urls: urlDatabase,
+            user: user
+        };
+        //console.log(templateVars);
+
+    res.render("urls_new", templateVars);
 });
 
 //used for making the index page
@@ -84,11 +102,15 @@ app.get("/urls/new", (req, res) => {
 // });
 
 app.get("/urls/:id", (req, res) => {
+    let userID = req.cookies.user_id;
+    let user = users[userID];
     //console.log(req.params.id);
     let templateVars = {
         urls: urlDatabase,
         shortURL: req.params.id,
-        longURL: urlDatabase[req.params.id]
+        longURL: urlDatabase[req.params.id],
+        urls: urlDatabase,
+        user: user
     };
     //console.log(templateVars);
     res.render("urls_show", templateVars);
@@ -111,31 +133,19 @@ app.post("/register", (req, res) => {
         id: idRandom,
         email: req.body.email,
         password: req.body.password
-    }
-    //var users ={}
-    //users {}
-    //idRandom = 'foo'
+      };
     users[idRandom] = newUser;
-    //users{
-      //idRandom:foo
-    //}
+
     //error registation handling
-    if (!newUsers.email) {
-        res.sendStatus(400);
-    }
-    if (!newUsers.password) {
-        res.sendStatus(400);
-    }
     //responding with a previously used email
-    if (newUsers.email == emailSearch(req.body.email)) {
+    if (newUser.email == emailSearch(req.body.email)) {
         res.sendStatus(400);
+    }
+    if (!newUser.email || !newUser.password) {
+        res.sendStatus(400);
+
     } else {
-        //console.log('idRandom',idRandom);
-        //console.log('email',req.body.email);
-        //console.log('users', users);
-
-
-        res.cookie('user_id', newUsers.id);
+        res.cookie('user_id', newUser.id);
         res.redirect("/");
     }
 });
