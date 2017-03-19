@@ -5,6 +5,17 @@
 </div>
 <% if (user){%>
 <p>Hello: <%=user.email%></p>
+
+
+<form action="/logout" method = "POST">
+  <p>
+    <label for="variable"></label>
+    <input type="submit" value="Logout">
+  </p>
+</form>
+
+
+
  <% } else { %>
   <a href="/register">Register</a>
 <a href="/login">Login</a>
