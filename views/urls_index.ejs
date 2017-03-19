@@ -1,25 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
   <% include ./partials/_head %>
-  <body>
-    <% include ./partials/_header %>
-      <h2>URL Shortener</h2>
-      <ul>
-        <% for (key in urls){ %>
-          <li>
-            <form method="POST" action="/urls/<%=key%>/delete">
-              <p>
-                <%= key %> -->
-                  <a href="<%=urls[key]%>">
-                    <%=urls[key]%>
-                  </a>
-                  <a href="/urls/><%=key%>">Edit</a>
-                  <button name="delete" type="submit">Delete!</button>
-            </form>
-            </p>
-            <% }%>
-          </li>
-      </ul>
-      <a href="/urls/new/"> Link to short URL Maker </a></body>
+
+    <body>
+      <% include ./partials/_header %>
+        <h2>URL Shortener</h2>
+        <ul>
+          <% for (var key in urls){ %>
+            <li>
+              <form method="POST" action="/urls/<%=key%>/delete">
+                <p>
+                  <%= key %> -->
+                    <a href="<%= urls[key].longURL%>">
+                      <%=urls[key].longURL%>
+                    </a>
+                    <a href="/urls/><%=key%>"> Edit   </a>
+                    <button name="delete" type="submit">Delete!</button>
+              </form>
+              </p>
+              <% }%>
+            </li>
+        </ul>
+        <a href="/urls/new/"> Link to short URL Maker </a></body>
 
 </html>
