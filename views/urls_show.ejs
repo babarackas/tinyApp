@@ -1,23 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-<% include ./partials/_head %>
-<body>
-<header><% include ../views/partials/_header%></header>
+  <% include ./partials/_head %>
 
+    <body>
+      <header>
+        <% include ../views/partials/_header%>
+      </header>
+      <h3> Short URL: <%=shortURL%></h3>
+      <h3> Long URL: <%=longURL%> </h3>
+      <a href="/">View All your Added Tiny URLS </a>
+    </body>
 
-<div class="form-group">
-  <form action="/urls/<%=shortURL%>/update" method = "POST">
-  <h3> Your new short URL: <%=shortURL%></h3>
-  <p>
-    <label for="variable">Submit URL to Database</label>
-    <input class="form-control" id="inputdefault" value="<%=longURL%>" name="variable" >
-    <input type="submit" value="Submit">
-  </p>
-</form>
-</div>
-</ul>
-
-</ul>
-</body>
 </html>
-

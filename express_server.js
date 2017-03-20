@@ -88,6 +88,7 @@ var urlDatabase = {
           urls: urlDatabase,
           user: user
         };
+       debugger
         res.render("urls_index", templateVars);
       } else {
         res.redirect("/login");
@@ -114,15 +115,14 @@ var urlDatabase = {
       let templateVars = {
         urls: urlDatabase,
         shortURL: req.params.id,
-        longURL: urlDatabase[req.params.id],
-        urls: urlDatabase,
+        longURL: urlDatabase[req.params.id].longURL,
         user: user
       };
       res.render("urls_show", templateVars);
     });
 
     app.get("/u/:shortURL", (req, res) => {
-      let longURL = urlDatabase[req.params.shortURL];
+      let longURL = urlDatabase[req.params.shortURL].longURL;
       res.redirect(longURL);
     });
 
@@ -156,7 +156,11 @@ var urlDatabase = {
 
     app.post("/urls", (req, res) => {
       var random = generateRandomString();
-      urlDatabase[random] = req.body.longURL;
+      urlDatabase[random] = {
+        longURL: req.body.longURL,
+        userID: req.cookies[cookieKey]
+      }
+
       var newURL = "/urls/" + random;
       res.redirect(newURL);
     });
@@ -167,14 +171,6 @@ var urlDatabase = {
       delete(urlDatabase[req.params.id]);
       res.redirect("/");
     });
-
-    //req.params.id contains shortURL
-    app.post("/urls/:id/update", (req, res) => {
-      //console.log(urlDatabase[req.params.id]);
-      urlDatabase[req.params.id] = req.body.variable;
-      res.redirect("/");
-    });
-
 
     app.get("/login", (req, res) => {
       res.render("login", { user: undefined });
