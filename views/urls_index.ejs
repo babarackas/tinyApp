@@ -11,13 +11,12 @@
               <form method="POST" action="/urls/<%=key%>/delete">
                 <p>
                   <%= key %> -->
-                    <a href="<%= urls[key].longURL%>">
-                      <%=urls[key].longURL%>
+                    <a href="<%= urls[key]%>">
+                      <%=urls[key]%>
                     </a>
-                    <% if (urls[key].userID == user.id) {%>
                       <a href="/urls_index">Edit</a>
                       <button name="delete" type="submit">Delete!</button>
-                      <%}%>
+
                 </p>
               </form>
               </li>

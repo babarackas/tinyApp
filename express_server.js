@@ -38,6 +38,7 @@ const users = {
   }
 };
 
+
 var cookieKey = 'user_id'
 
 //random string generator of 6 numbers and letters
@@ -79,17 +80,32 @@ function pwExists(pwIn) {
 };
 
 // Function to filter URLDatabase for permitted sites
-
+function urlsForUser(id) {
+  let filteredURLs = {};
+  for (var key in urlDatabase) {
+    console.log("current database value",urlDatabase[key].userID);
+    console.log("id", id)
+    if (urlDatabase[key].userID == id){
+      filteredURLs[key] = urlDatabase[key].longURL;
+    }
+  }
+  console.log("function urlsForUser", filteredURLs);
+  return filteredURLs;
+};
 
 
 //route to homepage if logged in --- can use object users
 app.get("/", (req, res) => {
   let userID = req.cookies[cookieKey];
+  //console.log("userID", userID);
   let user = users[userID];
+  //console.log("user", user);
+  let filtered = urlsForUser(userID);
+//console.log("filtered by user",filtered);
   // if logged go to index page, if not logged in go to register
   if (user) {
     let templateVars = {
-      urls: urlDatabase,
+      urls: filtered,
       user_id: req.params.user_id,
       user: user
     };
