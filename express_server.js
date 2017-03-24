@@ -1,8 +1,19 @@
 var express = require("express");
-var cookieParser = require('cookie-parser')
 var app = express();
-app.use(cookieParser())
-app.use(express.static('public'))
+app.use(express.static('public'));
+var cookieSession = require('cookie-session');
+
+app.use(cookieSession({
+  name: 'session',
+  keys: ["pass123"],
+
+  // Cookie Options
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}));
+
+const bcrypt = require('bcrypt');
+const password = "purple-monkey-dinosaur"; // you will probably this from req.params
+const hashed_password = bcrypt.hashSync(password, 10);
 
 var PORT = process.env.PORT || 8080;
 
@@ -39,7 +50,7 @@ const users = {
 };
 
 
-var cookieKey = 'user_id'
+//var cookieKey = 'user_id'
 
 //random string generator of 6 numbers and letters
 function generateRandomString() {
@@ -96,7 +107,7 @@ function urlsForUser(id) {
 
 //route to homepage if logged in --- can use object users
 app.get("/", (req, res) => {
-  let userID = req.cookies[cookieKey];
+  let userID = req.session.user_id;
   //console.log("userID", userID);
   let user = users[userID];
   //console.log("user", user);
@@ -116,7 +127,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  let userID = req.cookies[cookieKey];
+  let userID = req.session.user_id;
   let user = users[userID];
   if (user) {
     let templateVars = {
@@ -130,15 +141,14 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
-  let userID = req.cookies[cookieKey];
+  let userID = req.session.user_id;
   let user = users[userID];
-  debugger
   let templateVars = {
     shortURL: req.params.id,
     longURL: urlDatabase[req.params.id].longURL,
     user: user
   };
-  console.log(urlDatabase[req.params.id].longURL);
+  //console.log(urlDatabase[req.params.id].longURL);
   res.render("urls_show", templateVars);
 });
 
@@ -154,22 +164,26 @@ app.get('/register', (req, res) => {
 
 //after inputting info into registration
 app.post("/register", (req, res) => {
-  let idRandom = generateRandomString()
-  let newUser = {
-    id: idRandom,
+
+  let formData = {
     email: req.body.email,
     password: req.body.password
   };
 
-  //error registation handling
-  //responding with a previously used email
-  if (!newUser.email || !newUser.password || emailExists(newUser.email)) {
-    console.log("Status code 400");
-    res.sendStatus(400);
+  if (!formData.email || !formData.password || emailExists(formData.email)) {
+    res.status(400).send("Please enter valid email and password");
 
   } else {
+    let idRandom = generateRandomString();
+    let hashedPassword = bcrypt.hashSync(formData.password, 10);
+    let newUser = {
+      id: idRandom,
+      email: formData.email,
+      password: hashedPassword
+    };
     users[idRandom] = newUser;
-    res.cookie(cookieKey, newUser.id);
+    req.session.user_id = newUser.id;
+    //res.cookie(cookieKey, newUser.id);
     res.redirect("/");
     //console.log(newUser.email);
   }
@@ -179,7 +193,7 @@ app.post("/urls", (req, res) => {
   var random = generateRandomString();
   urlDatabase[random] = {
     longURL: req.body.longURL,
-    userID: req.cookies[cookieKey]
+    userID: req.session.user_id
   }
 
   var newURL = "/urls/" + random;
@@ -188,7 +202,6 @@ app.post("/urls", (req, res) => {
 
 //to delete a website entry
 app.post("/urls/:id/delete", (req, res) => {
-  //console.log(urlDatabase[req.params.id]);
   delete(urlDatabase[req.params.id]);
   res.redirect("/");
 });
@@ -199,38 +212,39 @@ app.get("/login", (req, res) => {
 
 //login endpoint add cookie
 app.post("/login", (req, res) => {
-  let userLogin = {
+  let loginForm = {
     email: req.body.email,
     password: req.body.password
   };
   //check to see if email or pw is empty send to 400
-  if (!userLogin.email || !userLogin.password) {
-    console.log("Status code 400");
+  if (!loginForm.email || !loginForm.password) {
     res.sendStatus(400);
     return;
   }
-  var user = getUserByEmail(userLogin.email);
-  //user does not exist in database. direct to regirter
+  var user = getUserByEmail(loginForm.email);
+
   if (!user) {
     res.redirect("/register");
     return;
   }
   //user with matching email but incorrect password /400 error
-  if (userLogin.password != user.password) {
+  let passwordsMatch = bcrypt.compareSync(loginForm.password, user.password);
+  if (!passwordsMatch) {
     res.sendStatus(400);
   }
   //user has matching email and password/ redirects to home
   else {
-    //login and give cookie
-    res.cookie(cookieKey, user.id);
+    req.session.user_id = user.id;
+
+    //res.cookie(cookieKey, user_id);
     res.redirect("/");
   }
 });
 
 //logout endpoint delete cookie
 app.post("/logout", (req, res) => {
-  res.clearCookie(cookieKey, req.body.name);
-  //console.log(req.body.name);
+  req.session.user_id = undefined;
+  //res.clearCookie(cookieKey, undefined);
   res.redirect("/");
 });
 
