@@ -7,12 +7,12 @@ app.use(cookieSession({
   name: 'session',
   keys: ["pass123"],
 
-  // Cookie Options
+//sets length of cookies
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 
 const bcrypt = require('bcrypt');
-const password = "purple-monkey-dinosaur"; // you will probably this from req.params
+const password = "purple-monkey-dinosaur";
 const hashed_password = bcrypt.hashSync(password, 10);
 
 var PORT = process.env.PORT || 8080;
@@ -49,8 +49,6 @@ const users = {
   }
 };
 
-
-//var cookieKey = 'user_id'
 
 //random string generator of 6 numbers and letters
 function generateRandomString() {
@@ -94,25 +92,23 @@ function pwExists(pwIn) {
 function urlsForUser(id) {
   let filteredURLs = {};
   for (var key in urlDatabase) {
-    console.log("current database value",urlDatabase[key].userID);
-    console.log("id", id)
     if (urlDatabase[key].userID == id){
       filteredURLs[key] = urlDatabase[key].longURL;
     }
   }
-  console.log("function urlsForUser", filteredURLs);
   return filteredURLs;
 };
 
 
-//route to homepage if logged in --- can use object users
 app.get("/", (req, res) => {
+  res.redirect("/urls");
+});
+
+//route to homepage if logged in --- can use object users
+app.get("/urls", (req, res) => {
   let userID = req.session.user_id;
-  //console.log("userID", userID);
   let user = users[userID];
-  //console.log("user", user);
   let filtered = urlsForUser(userID);
-//console.log("filtered by user",filtered);
   // if logged go to index page, if not logged in go to register
   if (user) {
     let templateVars = {
@@ -125,6 +121,7 @@ app.get("/", (req, res) => {
     res.redirect("/login");
   }
 });
+
 
 app.get("/urls/new", (req, res) => {
   let userID = req.session.user_id;
@@ -141,14 +138,16 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
+  let urlKey = req.params.id;
   let userID = req.session.user_id;
+  console.log("urlKey",urlKey);
   let user = users[userID];
   let templateVars = {
     shortURL: req.params.id,
-    longURL: urlDatabase[req.params.id].longURL,
+    longURL: urlDatabase[urlKey].longURL,
     user: user
   };
-  //console.log(urlDatabase[req.params.id].longURL);
+
   res.render("urls_show", templateVars);
 });
 
@@ -183,9 +182,7 @@ app.post("/register", (req, res) => {
     };
     users[idRandom] = newUser;
     req.session.user_id = newUser.id;
-    //res.cookie(cookieKey, newUser.id);
     res.redirect("/");
-    //console.log(newUser.email);
   }
 });
 
@@ -218,7 +215,8 @@ app.post("/login", (req, res) => {
   };
   //check to see if email or pw is empty send to 400
   if (!loginForm.email || !loginForm.password) {
-    res.sendStatus(400);
+    res.status(401).send("Please enter valid email and password");
+
     return;
   }
   var user = getUserByEmail(loginForm.email);
@@ -230,13 +228,12 @@ app.post("/login", (req, res) => {
   //user with matching email but incorrect password /400 error
   let passwordsMatch = bcrypt.compareSync(loginForm.password, user.password);
   if (!passwordsMatch) {
-    res.sendStatus(400);
+    res.status(401).send("Please enter valid email and password");
+
   }
   //user has matching email and password/ redirects to home
   else {
     req.session.user_id = user.id;
-
-    //res.cookie(cookieKey, user_id);
     res.redirect("/");
   }
 });
@@ -244,7 +241,6 @@ app.post("/login", (req, res) => {
 //logout endpoint delete cookie
 app.post("/logout", (req, res) => {
   req.session.user_id = undefined;
-  //res.clearCookie(cookieKey, undefined);
   res.redirect("/");
 });
 
